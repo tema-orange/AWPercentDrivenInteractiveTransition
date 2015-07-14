@@ -127,6 +127,7 @@
     [_displayLink invalidate];
     
     CALayer *layer = [_transitionContext containerView].layer;
+    [self removeAnimationsRecursively:layer];
     layer.speed = 1;
     
     if (![_transitionContext transitionWasCancelled]) {
@@ -135,6 +136,15 @@
         layer.beginTime = 0.0; // Need to reset to 0 to avoid flickering :S
         CFTimeInterval timeSincePause = [layer convertTime:CACurrentMediaTime() fromLayer:nil] - pausedTime;
         layer.beginTime = timeSincePause;
+    }
+}
+
+- (void)removeAnimationsRecursively:(CALayer *)layer {
+    if (layer.sublayers.count > 0) {
+        for (CALayer *subLayer in layer.sublayers) {
+            [subLayer removeAllAnimations];
+            [self removeAnimationsRecursively:subLayer];
+        }
     }
 }
 
